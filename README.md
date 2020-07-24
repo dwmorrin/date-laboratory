@@ -1,3 +1,5 @@
+![screenshot](/screenshot.png)
+
 # Date Laboratory
 
 Dates are a dreaded bit of data to work with, especially in a web app.
