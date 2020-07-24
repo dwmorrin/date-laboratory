@@ -1,4 +1,4 @@
-# Testing Dates
+# Date Laboratory
 
 Dates are a dreaded bit of data to work with, especially in a web app.
 
@@ -15,13 +15,37 @@ arise in practice.
 
 Server uses a `.env` file for database. See `/date-lab-server/db.js`.
 
+Will need database setup to match server code. Referring to the source for now.
+
 ## Initial experimentation
 
 Using [Material-UI-Pickers](https://material-ui-pickers.dev/) in the client,
 and [node mysql](https://github.com/mysqljs/mysql#readme) in the server.
 
-### Questions:
+### Questions
 
-- If the dates always refer to _events_ happening at some fixed location,
-  can we store the dates in MySQL in the fixed location's timezone, or is it
-  better to use UTC dates instead?
+- If the dates always refer to **events** happening at some **fixed location**,
+  - do we need to configure UI, application logic, database, and server to all
+    use the fixed location timezone? (If so, how to avoid hardcoding this?)
+  - can we store the dates in MySQL in the fixed location's timezone, or is it
+    better to use UTC dates instead?
+  - how do we handle date inputs in the UI for setting a date on a fixed
+    location? e.g. the app sets events for a place in NYC. The admin is on
+    vacation in LA and goes to update some events. How do we ensure that the
+    date inputs are reflecting NYC time, not LA time?
+
+### Observations
+
+- Despite examples showing otherwise, it seems for consistent behavior that if
+  using the moment.js helper utilities with Material-UI-Pickers, you should
+  initialize with `moment()` and not `new Date()`. Otherwise you have to
+  always consider that your untouched value is a different object than your
+  touched value.
+
+### Resources
+
+[stackoverflow: Should MySQL have its timezone set to UTC?](https://stackoverflow.com/a/19075291/11359233)
+
+[stackoverflow: MySQL datetime fields and DST](https://stackoverflow.com/a/1650910/11359233)
+
+[stackoverflow: how to set the timezone to 'America/New_York' regardless of browser timezone? (moment.js)](https://stackoverflow.com/questions/36507159/how-to-set-the-timezone-to-america-new-york-regardless-of-browser-timezone-m)
