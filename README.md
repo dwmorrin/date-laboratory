@@ -22,6 +22,9 @@ Will need database setup to match server code. Referring to the source for now.
 Using [Material-UI-Pickers](https://material-ui-pickers.dev/) in the client,
 and [node mysql](https://github.com/mysqljs/mysql#readme) in the server.
 
+I began by choosing the moment utilities for the date picker, but swiched to
+date-fns.
+
 ### Questions
 
 - If the dates always refer to **events** happening at some **fixed location**,
@@ -41,6 +44,11 @@ and [node mysql](https://github.com/mysqljs/mysql#readme) in the server.
   initialize with `moment()` and not `new Date()`. Otherwise you have to
   always consider that your untouched value is a different object than your
   touched value.
+
+- Using date-fns, there is not the uncertainty of trying to determine if you
+  have a Date object or a Moment object; you can be certain you always have
+  a Date object. (This observation led me to conclude that I should switch
+  to using date-fns in the particular app I am testing for.)
 
 ### Resources
 
