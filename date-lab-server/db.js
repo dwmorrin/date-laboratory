@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 
-const makePool = (timezone = "UTC") =>
+const makePool = (timezone = "Z") =>
   mysql.createPool({
     debug: true,
     timezone,
@@ -18,14 +18,14 @@ const onResult = ({ res }) => ({
     res.status(error ? 500 : 200).json(error ? { error } : { data }),
 });
 
-const createOne = (table, timezone = "UTC") => (req, res) =>
+const createOne = (table, timezone = "Z") => (req, res) =>
   makePool(timezone).query(
     "INSERT INTO ?? SET ?",
     [table, req.body],
     onResult({ req, res }).create
   );
 
-const readOne = (table, key, timezone = "UTC") => (req, res) =>
+const readOne = (table, key, timezone = "Z") => (req, res) =>
   makePool(timezone).query(
     "SELECT * FROM ?? WHERE ?? = ?",
     [table, key, req.params.id],
