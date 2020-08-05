@@ -1119,6 +1119,29 @@
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.8.0.tgz#bbbff68978fefdbe68ccb533bc8cbe1d1afb5413"
   integrity sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow==
 
+"@fullcalendar/common@~5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/common/-/common-5.2.0.tgz#49dff00f5104daaa00a8a556be394cacec3fadb7"
+  integrity sha512-fh2Mp09lzIwlh3AJT5xw1r4jFKMOGRmdpmzJX+qvv3BJrg7P6ze4FLhoIpDRe13wmUpQuQEznk9pY99eFGxVXQ==
+  dependencies:
+    tslib "^2.0.0"
+
+"@fullcalendar/daygrid@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/daygrid/-/daygrid-5.2.0.tgz#33d7f8d756f9054565a8b319542e29538aa6a625"
+  integrity sha512-VYNjHqBsKgWLbCKBCGVgUG+zwZd+G6lyfRfwgm8dYhF27BgW17spn4Wd6nUuxMh4rfHyNtbH5Xsq6cVkF/phCg==
+  dependencies:
+    "@fullcalendar/common" "~5.2.0"
+    tslib "^2.0.0"
+
+"@fullcalendar/react@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/react/-/react-5.2.0.tgz#4c89954ee586210d63e1187d4d242ee538d38d2b"
+  integrity sha512-7reGbOriO87+zP6L9T50ry04RfQqXFMjjiRdtFX/iOCs11gVARNQGP6rG1qH5xcKxNze02lHhILZb0pa/DowaA==
+  dependencies:
+    "@fullcalendar/common" "~5.2.0"
+    tslib "^2.0.0"
+
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
@@ -3646,6 +3669,11 @@ data-urls@^1.0.0, data-urls@^1.1.0:
     abab "^2.0.0"
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
+
+date-fns-tz@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/date-fns-tz/-/date-fns-tz-1.0.10.tgz#30fef0038f80534fddd8e133a6b8ca55ba313748"
+  integrity sha512-cHQAz0/9uDABaUNDM80Mj1FL4ODlxs1xEY4b0DQuAooO2UdNKvDkNbV8ogLnxLbv02Ru1HXFcot0pVvDRBgptg==
 
 date-fns@^2.15.0:
   version "2.15.0"
@@ -10333,6 +10361,11 @@ tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.11.1.tgz#eb15d128827fbee2841549e171f45ed338ac7e35"
   integrity sha512-aZW88SY8kQbU7gpV19lN24LtXh/yD4ZZg6qieAJDDg+YBsJcSmLGK9QpnUjAKVG/xefmvJGd1WUmfpT/g6AJGA==
+
+tslib@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.0.0.tgz#18d13fc2dce04051e20f074cc8387fd8089ce4f3"
+  integrity sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
 
 tsutils@^3.17.1:
   version "3.17.1"
