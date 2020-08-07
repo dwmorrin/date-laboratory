@@ -8,13 +8,27 @@ import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 
-const dummy8amString = "2020-08-05T12:00:00.000Z";
-const dummyAsNYC = utcToZonedTime(dummy8amString, "America/New_York");
+const nyc8amWallSQL = "2020-08-05 08:00:00";
+const nyc8amInUTC = "2020-08-05T12:00:00.000Z";
+const nyc8amInNYC = utcToZonedTime(nyc8amInUTC, "America/New_York");
 const ISOfmt = "YYYY-MM-DDTHH:mm:ss";
 
 const formatJSON = lightFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 const print = (anything) => JSON.stringify(anything, null, 2);
+
+const logEvent = ({ event: { start } }) => {
+  const json = start.toJSON();
+  const ISO9075 = json.split(".")[0];
+  console.log({
+    start,
+    getTime: start.getTime(),
+    json,
+    ISO9075,
+    toString: start.toString(),
+    "reparsed, to string": new Date(ISO9075).toString(),
+  });
+};
 
 const dateInspect = (date) => ({
   "date instanceof Date?": date instanceof Date,
@@ -128,11 +142,14 @@ function App() {
       <FullCalendar
         plugins={[dayGridPlugin]}
         initialView="dayGridMonth"
+        timeZone="America/New_York"
         events={[
           { title: "selected", start: selectedDate, end: selectedDate },
-          { title: "raw dummy", start: dummy8amString, end: dummy8amString },
-          { title: "dummy as NYC", start: dummyAsNYC, end: dummyAsNYC },
+          { title: "input as UTC", start: nyc8amInUTC, end: nyc8amInUTC },
+          { title: "input as NYC", start: nyc8amInNYC, end: nyc8amInNYC },
+          { title: "wall sql", start: nyc8amWallSQL, end: nyc8amWallSQL },
         ]}
+        eventClick={logEvent}
       />
     </>
   );
