@@ -32,4 +32,8 @@ const readOne = (table, key) => (req, res) =>
     [table, key, req.params.id],
     onResult({ req, res }).read
   );
-module.exports = { createOne, readOne };
+
+const readMany = (table, key) => (req, res) =>
+  makePool().query("SELECT * FROM ??", [table], onResult({ req, res }).read);
+
+module.exports = { createOne, readOne, readMany };

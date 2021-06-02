@@ -12,6 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(simpleLogger);
 
 // API routing
+app.get("/api/input", db.readMany("input"));
 app.get("/api/input/:id", db.readOne("input", "id"));
 app.post("/api/input", db.createOne("input"));
 

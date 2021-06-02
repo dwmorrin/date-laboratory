@@ -2,62 +2,67 @@ import React, { useState } from "react";
 import { Button, Container } from "@material-ui/core";
 import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
-import { formatISO9075 } from "date-fns";
-import { add } from "date-fns/fp";
-import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-
-const calculateInUtc = (cb) => (ISO9075) => {
-  const TZ = process.env.REACT_APP_TZ || "America/New_York";
-  return formatISO9075(utcToZonedTime(cb(zonedTimeToUtc(ISO9075, TZ)), TZ));
-};
-
-const add1Day = calculateInUtc(add({ days: 1 }));
-
-const formatUtcISO9075 = (date) =>
-  date.toISOString().replace("T", " ").split(".")[0];
+import {
+  dateStringAdd,
+  formatSQLDatetime,
+  formatSQLDate,
+  formatSQLTime,
+  parseSQLDate,
+  parseSQLDatetime,
+  parseSQLTime,
+  parseFCString,
+  formatFCString,
+} from "./date";
 
 const print = (anything) => JSON.stringify(anything, null, 2);
 
-const logEvent = (callback) => ({ event: { start } }) => {
-  const ISO9075 = formatUtcISO9075(start);
+const logEvent = (callback) => ({ event: { startStr } }) => {
+  const ISO9075 = formatFCString(startStr);
   callback({
+    startStr,
     ISO9075,
-    "add 1 day": add1Day(ISO9075),
+    "add 1 day": dateStringAdd(ISO9075),
+    parseFCString: parseFCString(startStr).toString(),
+    formatFCString: formatFCString(startStr),
   });
 };
 
 const dateInspect = (date) => ({
   "date instanceof Date?": date instanceof Date,
-  "add 1 day": add1Day(date),
   toString: date.toString(),
   getTime: date.getTime(),
   toJSON: date.toJSON ? date.toJSON() : "n/a",
   "JSON.stringify": JSON.stringify(date),
   "date-fns": {
-    formatISO9075: date instanceof Date ? formatISO9075(date) : "n/a",
+    formatISO9075: date instanceof Date ? formatSQLDatetime(date) : "n/a",
   },
 });
 
 const responseInspect = ({ error, data }) => {
   if (error || !data || !data.length) return { error };
-  const { date } = data[0];
-  const dateObj = new Date(date);
-  const noTZ = new Date(date.split(".")[0]);
+  const { date, datetime, time } = data[0];
+  const dateObj = parseSQLDate(date);
+  const datetimeObj = parseSQLDatetime(datetime);
+  const timeObj = parseSQLTime(time);
   return {
     data,
     date: {
-      typeof: typeof date,
       asDate: {
         toString: dateObj.toString(),
         getTime: dateObj.getTime(),
       },
-      "parse without TZ": {
-        toString: noTZ.toString(),
-        getTIme: noTZ.getTime(),
+    },
+    datetimeObj: {
+      asDate: {
+        toString: datetimeObj.toString(),
       },
-      "add 1 day": add1Day(date),
+    },
+    timeObj: {
+      asDate: {
+        toString: timeObj.toString(),
+      },
     },
   };
 };
@@ -71,7 +76,11 @@ function App() {
   const submit = () =>
     fetch("/api/input", {
       method: "POST",
-      body: JSON.stringify({ date: selectedDate }),
+      body: JSON.stringify({
+        date: formatSQLDate(selectedDate),
+        datetime: formatSQLDatetime(selectedDate),
+        time: formatSQLTime(selectedDate),
+      }),
       headers: { "Content-Type": "application/json" },
     })
       .then((response) => response.json())
@@ -88,14 +97,14 @@ function App() {
     if (!results) return setError(new Error("no results yet"));
     const { data } = results;
     if (!data || !data.length) return setError(new Error("no data..."));
-    const { date } = data[0];
-    setSelectedDate(new Date(date));
+    const { datetime } = data[0];
+    setSelectedDate(parseSQLDatetime(datetime));
   };
 
   const getDateFromServer = () =>
-    fetch(`/api/input/1`)
+    fetch(`/api/input`)
       .then((response) => response.json())
-      .then(setResults)
+      .then(({ data }) => setResults({ data: data.slice(0, 1) }))
       .catch(setError);
 
   return (
@@ -135,12 +144,12 @@ function App() {
       <FullCalendar
         plugins={[dayGridPlugin]}
         initialView="dayGridMonth"
-        timeZone="America/New_York"
+        timeZone={process.env.REACT_APP_TZ}
         events={[
           {
             title: "selected",
-            start: formatISO9075(selectedDate),
-            end: formatISO9075(selectedDate),
+            start: formatSQLDatetime(selectedDate),
+            end: formatSQLDatetime(selectedDate),
           },
         ]}
         eventClick={logEvent(setEmittedEvent)}
