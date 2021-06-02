@@ -2,8 +2,8 @@ const mysql = require("mysql");
 
 const makePool = () =>
   mysql.createPool({
-    dateStrings: false,
-    timezone: "Z",
+    dateStrings: true,
+    timezone: "local",
     debug: true,
     connectionLimit: 10,
     host: process.env.MYSQL_HOST,
