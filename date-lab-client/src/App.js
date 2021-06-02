@@ -1,47 +1,42 @@
 import React, { useState } from "react";
 import { Button, Container } from "@material-ui/core";
 import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
-import moment from "moment";
 import DateFnsUtils from "@date-io/date-fns";
-import { lightFormat } from "date-fns/fp";
+import { formatISO9075 } from "date-fns";
+import { add } from "date-fns/fp";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 
-const nyc8amWallSQL = "2020-08-05 08:00:00";
-const nyc8amInUTC = "2020-08-05T12:00:00.000Z";
-const nyc8amInNYC = utcToZonedTime(nyc8amInUTC, "America/New_York");
-const ISOfmt = "YYYY-MM-DDTHH:mm:ss";
+const calculateInUtc = (cb) => (ISO9075) => {
+  const TZ = process.env.REACT_APP_TZ || "America/New_York";
+  return formatISO9075(utcToZonedTime(cb(zonedTimeToUtc(ISO9075, TZ)), TZ));
+};
 
-const formatJSON = lightFormat("yyyy-MM-dd'T'HH:mm:ss");
+const add1Day = calculateInUtc(add({ days: 1 }));
+
+const formatUtcISO9075 = (date) =>
+  date.toISOString().replace("T", " ").split(".")[0];
 
 const print = (anything) => JSON.stringify(anything, null, 2);
 
-const logEvent = ({ event: { start } }) => {
-  const json = start.toJSON();
-  const ISO9075 = json.split(".")[0];
-  console.log({
-    start,
-    getTime: start.getTime(),
-    json,
+const logEvent = (callback) => ({ event: { start } }) => {
+  const ISO9075 = formatUtcISO9075(start);
+  callback({
     ISO9075,
-    toString: start.toString(),
-    "reparsed, to string": new Date(ISO9075).toString(),
+    "add 1 day": add1Day(ISO9075),
   });
 };
 
 const dateInspect = (date) => ({
   "date instanceof Date?": date instanceof Date,
+  "add 1 day": add1Day(date),
   toString: date.toString(),
   getTime: date.getTime(),
   toJSON: date.toJSON ? date.toJSON() : "n/a",
   "JSON.stringify": JSON.stringify(date),
   "date-fns": {
-    formatJSON: date instanceof Date ? formatJSON(date) : "n/a",
-  },
-  moment: {
-    "format-no-arg": moment(date).format(),
-    "format-JSON": moment(date).format(ISOfmt),
+    formatISO9075: date instanceof Date ? formatISO9075(date) : "n/a",
   },
 });
 
@@ -49,8 +44,6 @@ const responseInspect = ({ error, data }) => {
   if (error || !data || !data.length) return { error };
   const { date } = data[0];
   const dateObj = new Date(date);
-  const fixedTZ = zonedTimeToUtc(date, "America/New_York");
-  const utcToNYC = utcToZonedTime(date, "America/New_York");
   const noTZ = new Date(date.split(".")[0]);
   return {
     data,
@@ -60,18 +53,11 @@ const responseInspect = ({ error, data }) => {
         toString: dateObj.toString(),
         getTime: dateObj.getTime(),
       },
-      inFixedTZ: {
-        toString: fixedTZ.toString(),
-        getTime: fixedTZ.getTime(),
-      },
-      "UTC to NYC": {
-        toString: utcToNYC.toString(),
-        getTime: utcToNYC.getTime(),
-      },
       "parse without TZ": {
         toString: noTZ.toString(),
         getTIme: noTZ.getTime(),
       },
+      "add 1 day": add1Day(date),
     },
   };
 };
@@ -80,6 +66,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [error, setError] = useState(null);
   const [results, setResults] = useState(null);
+  const [emittedEvent, setEmittedEvent] = useState(null);
 
   const submit = () =>
     fetch("/api/input", {
@@ -102,7 +89,7 @@ function App() {
     const { data } = results;
     if (!data || !data.length) return setError(new Error("no data..."));
     const { date } = data[0];
-    setSelectedDate(utcToZonedTime(date, "America/New_York"));
+    setSelectedDate(new Date(date));
   };
 
   const getDateFromServer = () =>
@@ -137,6 +124,12 @@ function App() {
               <pre>{print(responseInspect(results))}</pre>
             </>
           )}
+          {emittedEvent && (
+            <>
+              <h2>event emitted from FullCalendar</h2>
+              <pre>{print(emittedEvent)}</pre>
+            </>
+          )}
         </Container>
       </MuiPickersUtilsProvider>
       <FullCalendar
@@ -144,12 +137,13 @@ function App() {
         initialView="dayGridMonth"
         timeZone="America/New_York"
         events={[
-          { title: "selected", start: selectedDate, end: selectedDate },
-          { title: "input as UTC", start: nyc8amInUTC, end: nyc8amInUTC },
-          { title: "input as NYC", start: nyc8amInNYC, end: nyc8amInNYC },
-          { title: "wall sql", start: nyc8amWallSQL, end: nyc8amWallSQL },
+          {
+            title: "selected",
+            start: formatISO9075(selectedDate),
+            end: formatISO9075(selectedDate),
+          },
         ]}
-        eventClick={logEvent}
+        eventClick={logEvent(setEmittedEvent)}
       />
     </>
   );
