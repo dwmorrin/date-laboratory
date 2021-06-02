@@ -1,9 +1,10 @@
 const mysql = require("mysql");
 
-const makePool = (timezone = "Z") =>
+const makePool = () =>
   mysql.createPool({
+    dateStrings: true,
+    timezone: "local",
     debug: true,
-    timezone,
     connectionLimit: 10,
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
@@ -18,17 +19,21 @@ const onResult = ({ res }) => ({
     res.status(error ? 500 : 200).json(error ? { error } : { data }),
 });
 
-const createOne = (table, timezone = "Z") => (req, res) =>
-  makePool(timezone).query(
+const createOne = (table) => (req, res) =>
+  makePool().query(
     "INSERT INTO ?? SET ?",
     [table, req.body],
     onResult({ req, res }).create
   );
 
-const readOne = (table, key, timezone = "Z") => (req, res) =>
-  makePool(timezone).query(
+const readOne = (table, key) => (req, res) =>
+  makePool().query(
     "SELECT * FROM ?? WHERE ?? = ?",
     [table, key, req.params.id],
     onResult({ req, res }).read
   );
-module.exports = { createOne, readOne };
+
+const readMany = (table, key) => (req, res) =>
+  makePool().query("SELECT * FROM ??", [table], onResult({ req, res }).read);
+
+module.exports = { createOne, readOne, readMany };
